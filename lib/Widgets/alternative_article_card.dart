@@ -6,7 +6,25 @@ import 'package:flutter/widgets.dart';
 
 class AlternativeArticleCard extends StatelessWidget {
   double bottomPadding = 0;
-  AlternativeArticleCard({this.bottomPadding});
+
+  String source;
+  String title;
+  String datePublished;
+  String description;
+  String url;
+  String urlToImage;
+  String content;
+
+  AlternativeArticleCard(
+      {this.bottomPadding,
+      this.source,
+      this.title,
+      this.datePublished,
+      this.description,
+      this.url,
+      this.urlToImage,
+      this.content});
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -27,8 +45,8 @@ class AlternativeArticleCard extends StatelessWidget {
                   child: Container(
                     decoration: BoxDecoration(
                       image: DecorationImage(
-                        image: AssetImage('assets/images/glasscloth.png'),
-                        fit: BoxFit.fitHeight,
+                        image: AssetImage(urlToImage),
+                        fit: BoxFit.cover,
                       ),
                     ),
                     //color: Colors.grey,
@@ -48,8 +66,7 @@ class AlternativeArticleCard extends StatelessWidget {
                       Container(
                         padding: EdgeInsets.only(
                             left: 10, right: 0, top: 5, bottom: 5),
-                        child: Text(
-                            'After pitched battle, Hong Kong police move on university campus, begin mass arrests - The Washington post',
+                        child: Text(title,
                             overflow: TextOverflow.ellipsis,
                             maxLines: 3,
                             style: Theme.of(context).textTheme.title.copyWith(
@@ -61,7 +78,7 @@ class AlternativeArticleCard extends StatelessWidget {
                         padding: EdgeInsets.only(
                             left: 10, right: 0, top: 5, bottom: 0),
                         child: Text(
-                          'As both sides escalated their weaponry, police warned they could use live rounds',
+                          description,
                           overflow: TextOverflow.ellipsis,
                           maxLines: 2,
                           style: TextStyle(
@@ -79,17 +96,22 @@ class AlternativeArticleCard extends StatelessWidget {
             ],
           ),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Container(
-                padding: EdgeInsets.only(left: 90, top: 0, bottom: 8),
-                child: Text(
-                  'LENJVAL - 2 Days Ago',
-                  style: Theme.of(context)
-                      .textTheme
-                      .overline
-                      .copyWith(fontSize: 12),
+              Expanded(
+                child: Container(
+                  padding: EdgeInsets.only(left: 10, top: 0, bottom: 8),
+                  child: Text(
+                    '$datePublished - $source',
+                    style: Theme.of(context)
+                        .textTheme
+                        .overline
+                        .copyWith(fontSize: 15),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.left,
+                  ),
                 ),
               ),
               Container(

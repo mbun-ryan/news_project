@@ -9,7 +9,7 @@ class IndependentArticle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Dummy'),
+        title: Text('News Details'),
         actions: [
           IconButton(
             icon: Icon(Icons.more_vert),
@@ -18,7 +18,8 @@ class IndependentArticle extends StatelessWidget {
         ],
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(5),
+        physics: BouncingScrollPhysics(),
+        //padding: EdgeInsets.all(5),
         child: Column(
           children: [
             Card(
@@ -37,7 +38,7 @@ class IndependentArticle extends StatelessWidget {
                       decoration: BoxDecoration(
                         image: DecorationImage(
                           alignment: Alignment.center,
-                          image: AssetImage('assets/images/songoku.jpg'
+                          image: AssetImage('assets/images/songoku3.jpg'
                               ''),
                           fit: BoxFit.cover,
                         ),
@@ -73,6 +74,7 @@ class IndependentArticle extends StatelessWidget {
               ),
             ),
             Container(
+              padding: EdgeInsets.all(5),
               margin: EdgeInsets.only(top: 2, bottom: 1, left: 3, right: 3),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -127,8 +129,8 @@ class IndependentArticle extends StatelessWidget {
                   Container(
                     padding: EdgeInsets.symmetric(horizontal: 0, vertical: 10),
                     child: Text(
-                      'An outline of facts why Cameroon has long been considered as \n\"Africa-In-Miniature\"',
-                      textAlign: TextAlign.center,
+                      'An outline of facts why Cameroon has long been considered as "Africa-In-Miniature\"',
+                      // textAlign: TextAlign.center,
                       style: Theme.of(context)
                           .textTheme
                           .bodyText2
