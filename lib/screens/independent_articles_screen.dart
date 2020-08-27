@@ -1,19 +1,71 @@
 import 'dart:ui';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:intl/intl.dart';
+import 'package:news_project/screens/web_mode.dart';
 
-class IndependentArticle extends StatelessWidget {
+class IndependentArticle extends StatefulWidget {
+  final String source;
+  final String author;
+  final String title;
+  final String datePublished;
+  final String description;
+  final String url;
+  final String urlToImage;
+  final String content;
+
+  IndependentArticle({
+    @required this.author,
+    @required this.title,
+    @required this.datePublished,
+    @required this.description,
+    @required this.url,
+    @required this.urlToImage,
+    @required this.content,
+    @required this.source,
+  });
+
+  @override
+  _IndependentArticleState createState() => _IndependentArticleState();
+}
+
+class _IndependentArticleState extends State<IndependentArticle> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('News Details'),
         actions: [
-          IconButton(
-            icon: Icon(Icons.more_vert),
-            onPressed: () {},
+          DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              icon: Icon(Icons.more_vert),
+              iconEnabledColor: Colors.white,
+              // value: 'Open In Web mode',
+              items: [
+                DropdownMenuItem(
+                  child: Container(
+                      margin: EdgeInsets.all(0),
+                      height: 50,
+                      width: 90,
+                      child: Center(
+                          child: Text(
+                        'Open In Web Mode',
+                        style: TextStyle(
+                            fontSize: 19, fontWeight: FontWeight.w300),
+                      ))),
+                  value: widget.url,
+                ),
+              ],
+              onChanged: (value) => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ArticleWebMode(
+                            url: value,
+                          ))),
+            ),
           ),
         ],
       ),
@@ -34,28 +86,32 @@ class IndependentArticle extends StatelessWidget {
                     Container(
                       decoration: BoxDecoration(color: Colors.blueGrey),
                     ),
-                    Container(
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          alignment: Alignment.center,
-                          image: AssetImage('assets/images/songoku3.jpg'
-                              ''),
-                          fit: BoxFit.cover,
+                    CachedNetworkImage(
+                      imageUrl: widget.urlToImage,
+                      imageBuilder: (context, imageProvider) => Container(
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: imageProvider,
+                            fit: BoxFit.cover,
+                          ),
                         ),
                       ),
+                      placeholder: (context, url) => LinearProgressIndicator(),
+                      errorWidget: (context, url, error) => Icon(Icons.error),
+                    ),
+                    Container(
                       padding: EdgeInsets.only(bottom: 5),
                       alignment: Alignment.bottomLeft,
                       child: Container(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Card(
-                              elevation: 100,
-                              margin: EdgeInsets.all(0),
-                              color: Colors.white70,
-                              child: Container(
-                                padding: EdgeInsets.all(10),
-                                child: Text('Author - Mbun Ryan',
+                        child: Card(
+                          margin: EdgeInsets.only(right: 5),
+                          elevation: 100,
+                          color: Colors.white70,
+                          child: Container(
+                            padding: EdgeInsets.all(10),
+                            child: Row(
+                              children: [
+                                Text('Author - ',
                                     style: Theme.of(context)
                                         .textTheme
                                         .overline
@@ -63,9 +119,23 @@ class IndependentArticle extends StatelessWidget {
                                             fontSize: 18,
                                             fontWeight: FontWeight.w900,
                                             color: Colors.grey[900])),
-                              ),
+                                Expanded(
+                                  child: Text(
+                                    widget.author,
+                                    maxLines: 3,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .caption
+                                        .copyWith(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.w900,
+                                        ),
+                                  ),
+                                )
+                              ],
                             ),
-                          ],
+                          ),
                         ),
                       ),
                     ),
@@ -82,23 +152,41 @@ class IndependentArticle extends StatelessWidget {
                 children: [
                   Card(
                     child: ListTile(
-                      title: Row(
-                        children: [
-                          Text(
-                            'Source - ',
-                            style: Theme.of(context).textTheme.caption.copyWith(
-                                fontSize: 20, fontWeight: FontWeight.w600),
-                          ),
-                          Text(
-                            'Mbun Ryan\'s Blog',
-                            style: Theme.of(context).textTheme.caption.copyWith(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w900,
-                                ),
-                          )
-                        ],
+                      contentPadding: EdgeInsets.only(
+                          top: 0, bottom: 2, left: 10, right: 0),
+                      title: Container(
+                        padding: EdgeInsets.only(bottom: 10),
+                        child: Row(
+                          children: [
+                            Text(
+                              'Source - ',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .caption
+                                  .copyWith(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w600),
+                            ),
+                            Expanded(
+                              child: Text(
+                                widget.source,
+                                maxLines: 3,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .caption
+                                    .copyWith(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w900,
+                                    ),
+                              ),
+                            )
+                          ],
+                        ),
                       ),
-                      subtitle: Text('Published: 2 Days Ago'),
+                      subtitle: Text(
+                        '${DateFormat().add_yMMMEd().format(DateTime.parse(widget.datePublished))}',
+                      ),
                       // color: Colors.grey.withOpacity(.03),
                     ),
                   ),
@@ -108,7 +196,7 @@ class IndependentArticle extends StatelessWidget {
                       bottom: 10,
                     ),
                     child: Text(
-                      'A Stereotype About Cameroon for the YYAS 2020 application.',
+                      widget.title,
                       textAlign: TextAlign.center,
                       style: Theme.of(context)
                           .textTheme
@@ -129,8 +217,7 @@ class IndependentArticle extends StatelessWidget {
                   Container(
                     padding: EdgeInsets.symmetric(horizontal: 0, vertical: 10),
                     child: Text(
-                      'An outline of facts why Cameroon has long been considered as "Africa-In-Miniature\"',
-                      // textAlign: TextAlign.center,
+                      widget.description, // textAlign: TextAlign.center,
                       style: Theme.of(context)
                           .textTheme
                           .bodyText2
@@ -145,7 +232,7 @@ class IndependentArticle extends StatelessWidget {
                   Container(
                     padding: EdgeInsets.symmetric(horizontal: 0, vertical: 10),
                     child: Text(
-                      'Cameroon has diverse cultural, religious, and political traditions as well as ethnic variety. English and French are her official languages, a heritage of her colonial past as both a colony of the United Kingdom and France from 1916 to 1960. This means two of the most popular languages in the world are used in Cameroon. The above factors and many more, together with her location usually described as “The Armpit of Africa”, sparked a popular stereotype mainly by tourist literature, her being considered “Africa in miniature”. Asserting that she offers all the diversity of Africa, in climate, culture, and geography, within its borders. Some might question this, but based on my experiences and research, I think it might be safe to agree so. Well, let us find out.\n\nIn the context of language, not only do her inhabitants speak both English and French, regarded as some of the most popular languages in the world but more intriguing that she is equally home to 230 languages, including Afro-Asiatic, Nilo-Saharan, Niger-Congo, Fulfulde(Adamawa-Ubangui and Benue-Congo) languages.\n\nSounds kind of African right? Also, in terms of religion and culture, she has an extremely heterogeneous population, consisting of approximately 200 ethnic groups and a variety of religious beliefs. Its population divided into Christian, Muslim and “traditional” religions. Christian missions contributed informally to colonialism. I think this too can be seen in parts of Africa.\n\nEqually, in terms of Agriculture, it is undoubtedly an extremely important sector of Cameroonian and African economy and boosting countries’ GDP in the past years. It will be our driving engine out of poverty. As if it were not enough, you have the unique opportunity to visit the whole of Africa just by planning a trip to Cameroon. With over millions of tourists in the past years, she has become a destination of choice within CEMAC. She has great cultural, ethnic and geographic diversity.\nAnd as I have experienced, beautiful tropical, palm-fringed beaches, high mountains and volcanoes, game parks, Sahel landscape and deserts, big lakes and impenetrable tropical forests full of wild animals like chimpanzee, gorilla, elephant, and buffalo amongst many others, which can be found in parts of Africa.\n\nEnough with the positive side. Despite everything, one cannot neglect social ills inclusive of, tribalism, public protests, drug addiction, poverty and corruption, sexual abuse, unemployment even female genital mutilation which at some point, have or are still taking place in Cameroon and parts of Africa.\n\nTo wrap up, a stereotype, according to Oxford Learner’s Dictionary, is a fixed idea or image that many people have of a particular type of person or thing, but which is often false in reality. They might limit our knowledge about something, and we can’t just accept them without proper learning and researching. Thus, I believe the above words speak for themselves, and indeed Cameroon can be considered “Africa in miniature”, a pocket-sized version of the continent. Literally.',
+                      widget.content,
                       style: Theme.of(context)
                           .textTheme
                           .subtitle1
@@ -160,7 +247,15 @@ class IndependentArticle extends StatelessWidget {
                     // width: MediaQuery.of(context).size.width,
                     padding: EdgeInsets.only(top: 10),
                     child: OutlineButton(
-                        onPressed: () {}, child: Text('Open In Web Mode')),
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => ArticleWebMode(
+                                        url: widget.url,
+                                      )));
+                        },
+                        child: Text('Open In Web Mode')),
                   ),
                 ],
               ),

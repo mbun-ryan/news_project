@@ -11,8 +11,11 @@ class ArticleModel {
   String url;
   String urlToImage;
   String content;
-  String country;
-  String keyword;
+  String countryToQuery;
+  String keywordToQuery;
+  String sourceToQuery;
+  String category;
+  String language;
 
   ArticleModel({
     this.author,
@@ -23,35 +26,112 @@ class ArticleModel {
     this.urlToImage,
     this.content,
     this.source,
-    this.country,
-    this.keyword,
+    this.countryToQuery,
+    this.keywordToQuery,
+    this.sourceToQuery,
+    this.category,
+    this.language,
   });
 
   final String apiKey = 'd31c365c442a42359a38431e467dfb48';
   List<ArticleModel> realArticles = [];
-  Future<List<ArticleModel>> loadRealArticles() async {
+  Future<List<ArticleModel>> loadArticles() async {
     String url =
-        //'https://newsapi.org/v2/everything?q=$keyword&apiKey=$apiKey';
-        'https://newsapi.org/v2/top-headlines?country=$country&apiKey=$apiKey';
-
+        //'https://newsapi.org/v2/everything?q=$keywordToQuery&apiKey=$apiKey';
+        'https://newsapi.org/v2/top-headlines?country=$countryToQuery&apiKey=$apiKey';
+    // 'https://newsapi.org/v2/top-headlines?sources=$sourceToQuery&apiKey=$apiKey';
     var response = await http.get(url);
     var jsonData = jsonDecode(response.body);
     if (jsonData['status'] == 'ok') {
       for (var article in jsonData['articles']) {
         ArticleModel newArticle = ArticleModel(
-          author: article['author'],
+          author: article['author'] != null && article['author'] != ''
+              ? article['author']
+              : 'Unavailable',
           source: article['source']['name'],
           title: article['title'],
           description:
               article['description'] != null && article['description'] != ''
                   ? article['description']
-                  : 'No Description',
+                  : 'Sorry, No Description Available.',
           url: article['url'],
           urlToImage: article['urlToImage'] != null
               ? article['urlToImage']
               : 'https://images.unsplash.com/photo-1572949645841-094f3a9c4c94?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=334&q=80',
           datePublished: article['publishedAt'],
-          content: article['content'],
+          content: article['content'] != null
+              ? article['content']
+              : 'Content Unavailable',
+        );
+        realArticles.add(newArticle);
+      }
+    }
+    return realArticles;
+  }
+
+  Future<List<ArticleModel>> loadCategoryArticles() async {
+    String _url =
+        //'https://newsapi.org/v2/everything?q=$keywordToQuery&apiKey=$apiKey';
+        //    'https://newsapi.org/v2/top-headlines?country=$countryToQuery&apiKey=$apiKey';
+        // 'https://newsapi.org/v2/top-headlines?sources=$sourceToQuery&apiKey=$apiKey';
+        'https://newsapi.org/v2/top-headlines?country=$countryToQuery&category=$category&apiKey=$apiKey';
+    var response = await http.get(_url);
+    var jsonData = jsonDecode(response.body);
+    if (jsonData['status'] == 'ok') {
+      for (var article in jsonData['articles']) {
+        ArticleModel newArticle = ArticleModel(
+          author: article['author'] != null
+              ? article['author']
+              : 'Author Unavailable',
+          source: article['source']['name'],
+          title: article['title'],
+          description:
+              article['description'] != null && article['description'] != ''
+                  ? article['description']
+                  : 'Sorry, No Description Available.',
+          url: article['url'] != null ? article['url'] : '',
+          urlToImage: article['urlToImage'] != null
+              ? article['urlToImage']
+              : 'https://images.unsplash.com/photo-1572949645841-094f3a9c4c94?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=334&q=80',
+          datePublished: article['publishedAt'],
+          content: article['content'] != null
+              ? article['content']
+              : 'Content Unavailable',
+        );
+        realArticles.add(newArticle);
+      }
+    }
+    return realArticles;
+  }
+
+  Future<List<ArticleModel>> loadQueriedArticles() async {
+    String _url =
+        'https://newsapi.org/v2/everything?q=$keywordToQuery&language=$language&apiKey=$apiKey';
+    //    'https://newsapi.org/v2/top-headlines?country=$countryToQuery&apiKey=$apiKey';
+    // 'https://newsapi.org/v2/top-headlines?sources=$sourceToQuery&apiKey=$apiKey';
+    // 'https://newsapi.org/v2/top-headlines?country=$countryToQuery&category=$category&apiKey=$apiKey';
+    var response = await http.get(_url);
+    var jsonData = jsonDecode(response.body);
+    if (jsonData['status'] == 'ok') {
+      for (var article in jsonData['articles']) {
+        ArticleModel newArticle = ArticleModel(
+          author: article['author'] != null
+              ? article['author']
+              : 'Author Unavailable',
+          source: article['source']['name'],
+          title: article['title'],
+          description:
+              article['description'] != null && article['description'] != ''
+                  ? article['description']
+                  : 'Sorry, No Description Available.',
+          url: article['url'] != null ? article['url'] : '',
+          urlToImage: article['urlToImage'] != null
+              ? article['urlToImage']
+              : 'https://images.unsplash.com/photo-1572949645841-094f3a9c4c94?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=334&q=80',
+          datePublished: article['publishedAt'],
+          content: article['content'] != null
+              ? article['content']
+              : 'Content Unavailable',
         );
         realArticles.add(newArticle);
       }
@@ -67,7 +147,7 @@ List<ArticleModel> loadDummyArticles() {
       author: 'Mbonyo Man',
       title:
           'After pitched battle, Hong Kong police move on university campus, begin mass arrests - The Washington post',
-      datePublished: 'August 20, 2020',
+      datePublished: "2020-08-25T05:30:00Z",
       description:
           'As both sides escalated their weaponry, police warned they could use live rounds',
       url: '',
@@ -78,7 +158,7 @@ List<ArticleModel> loadDummyArticles() {
       source: 'The Mbun Post',
       author: 'Mbun Ryan',
       title: 'A Stereotype About Cameroon for the YYAS 2020 application.',
-      datePublished: 'January 20, 2020',
+      datePublished: "2020-08-25T05:30:00Z",
       description:
           'An outline of facts why Cameroon has long been considered as \"Africa-In-Miniature\"',
       url: '',
@@ -91,7 +171,7 @@ List<ArticleModel> loadDummyArticles() {
       author: 'Mbun Ingrid',
       title:
           'Kendu, out of his foolishness manages to swallow 5 bowls of pap in one morning. Let\'s see what happens next',
-      datePublished: 'August 24, 2020',
+      datePublished: "2020-08-25T05:30:00Z",
       description:
           'As Kendu and Bryce foolishly compete to find who has the largest Stomarch, Ryan sits back and watche in awe. Kendu won the challenge by swallowing 5 bowls of pap, while Bryce could only handle 3',
       url: '',
@@ -103,7 +183,7 @@ List<ArticleModel> loadDummyArticles() {
       author: 'Oga Bryce',
       title:
           'Kendu, out of his foolishness manages to swallow 5 bowls of pap in one morning. Let\'s see what happens next',
-      datePublished: 'August 24, 2020',
+      datePublished: "2020-08-25T05:30:00Z",
       description:
           'As Kendu and Bryce foolishly compete to find who has the largest Stomarch, Ryan sits back and watche in awe. Kendu won the challenge by swallowing 5 bowls of pap, while Bryce could only handle 3',
       url: '',
@@ -115,7 +195,7 @@ List<ArticleModel> loadDummyArticles() {
       author: 'Mbun Ingrid',
       title:
           'Kendu, out of his foolishness manages to swallow 5 bowls of pap in one morning. Let\'s see what happens next',
-      datePublished: 'August 24, 2020',
+      datePublished: "2020-08-25T05:30:00Z",
       description:
           'As Kendu and Bryce foolishly compete to find who has the largest Stomarch, Ryan sits back and watche in awe. Kendu won the challenge by swallowing 5 bowls of pap, while Bryce could only handle 3',
       url: '',
@@ -127,59 +207,11 @@ List<ArticleModel> loadDummyArticles() {
       author: 'Oga Bryce',
       title:
           'Kendu, out of his foolishness manages to swallow 5 bowls of pap in one morning. Let\'s see what happens next',
-      datePublished: 'August 24, 2020',
+      datePublished: "2020-08-25T05:30:00Z",
       description:
           'As Kendu and Bryce foolishly compete to find who has the largest Stomarch, Ryan sits back and watche in awe. Kendu won the challenge by swallowing 5 bowls of pap, while Bryce could only handle 3',
       url: '',
       urlToImage: 'assets/images/ryan1.jpg',
-      content: '',
-    ),
-    ArticleModel(
-      source: 'The Mbun Post',
-      author: 'Mbun Ingrid',
-      title:
-          'Kendu, out of his foolishness manages to swallow 5 bowls of pap in one morning. Let\'s see what happens next',
-      datePublished: 'August 24, 2020',
-      description:
-          'As Kendu and Bryce foolishly compete to find who has the largest Stomarch, Ryan sits back and watche in awe. Kendu won the challenge by swallowing 5 bowls of pap, while Bryce could only handle 3',
-      url: '',
-      urlToImage: 'assets/images/glasscloth.png',
-      content: '',
-    ),
-    ArticleModel(
-      source: 'The Mbun Post',
-      author: 'Oga Bryce',
-      title:
-          'Kendu, out of his foolishness manages to swallow 5 bowls of pap in one morning. Let\'s see what happens next',
-      datePublished: 'August 24, 2020',
-      description:
-          'As Kendu and Bryce foolishly compete to find who has the largest Stomarch, Ryan sits back and watche in awe. Kendu won the challenge by swallowing 5 bowls of pap, while Bryce could only handle 3',
-      url: '',
-      urlToImage: 'assets/images/ryantechlogo.png',
-      content: '',
-    ),
-    ArticleModel(
-      source: 'The Mbun Post',
-      author: 'Mbun Ingrid',
-      title:
-          'Kendu, out of his foolishness manages to swallow 5 bowls of pap in one morning. Let\'s see what happens next',
-      datePublished: 'August 24, 2020',
-      description:
-          'As Kendu and Bryce foolishly compete to find who has the largest Stomarch, Ryan sits back and watche in awe. Kendu won the challenge by swallowing 5 bowls of pap, while Bryce could only handle 3',
-      url: '',
-      urlToImage: 'assets/images/glasscloth.png',
-      content: '',
-    ),
-    ArticleModel(
-      source: 'The Mbun Post',
-      author: 'Oga Bryce',
-      title:
-          'Kendu, out of his foolishness manages to swallow 5 bowls of pap in one morning. Let\'s see what happens next',
-      datePublished: 'August 24, 2020',
-      description:
-          'As Kendu and Bryce foolishly compete to find who has the largest Stomarch, Ryan sits back and watche in awe. Kendu won the challenge by swallowing 5 bowls of pap, while Bryce could only handle 3',
-      url: '',
-      urlToImage: 'assets/images/ryantechlogo.png',
       content: '',
     ),
   ];

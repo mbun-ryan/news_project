@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:news_project/screens/independent_articles_screen.dart';
+import 'package:news_project/screens/web_mode.dart';
 
 class ArticleCard extends StatelessWidget {
   String source;
@@ -27,10 +28,55 @@ class ArticleCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      onLongPress: () => showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text('Alert!'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Do You Want To View the Article\'s website?',
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      OutlineButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: Text('No')),
+                      OutlineButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ArticleWebMode(
+                                          url: url,
+                                        )));
+                          },
+                          child: Text('Yes')),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          }),
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => IndependentArticle(),
+          builder: (context) => IndependentArticle(
+            author: author,
+            title: title,
+            description: description,
+            urlToImage: urlToImage,
+            url: url,
+            source: source,
+            content: content,
+            datePublished: datePublished,
+          ),
         ),
       ),
       child: Card(

@@ -1,13 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:news_project/Models/article_model.dart';
-import 'package:news_project/screens/independent_articles_screen.dart';
-
-import 'alternative_article_card.dart';
+import 'package:news_project/screens/queried_articles_screen.dart';
 
 class QueryArticles extends SearchDelegate<ArticleModel> {
+  List<String> searchedArticles = ['Cameroon', 'Huawei', 'HP'];
+  void addQ(String Q) {
+    if (Q.isNotEmpty && Q != ' ' && !searchedArticles.contains(Q)) {
+      searchedArticles.add(Q);
+    }
+    //searchedArticles.add(Q);
+  }
+
+  void showRes(BuildContext ctx, String que) {
+    query = que;
+    showResults(ctx);
+    addQ(que);
+  }
+
+  void addAndNavigate(BuildContext ctx, String currentSuggest) {
+    addQ(currentSuggest);
+    Navigator.push(
+      ctx,
+      MaterialPageRoute(
+        builder: (context) =>
+            //searchedArticles.add(query);
+            QueriedScreen(keyword: currentSuggest),
+      ),
+    );
+  }
+
+  void removeSearchedArticle(String index) {
+    searchedArticles.removeWhere((element) => element == index);
+  }
+
   @override
   List<Widget> buildActions(BuildContext context) {
     return [
+      IconButton(
+          icon: Icon(Icons.search), onPressed: () => showRes(context, query)),
       IconButton(
           icon: Icon(Icons.clear),
           onPressed: () {
@@ -27,65 +57,49 @@ class QueryArticles extends SearchDelegate<ArticleModel> {
 
   @override
   Widget buildResults(BuildContext context) {
-    return IndependentArticle();
+    addQ(query);
+    return QueriedScreen(keyword: query);
   }
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    final articles = query.isEmpty
-        ? loadDummyArticles()
-        : loadDummyArticles()
+    final suggestions = query.isEmpty
+        ? searchedArticles
+        : searchedArticles
             .where((article) =>
-                article.title
-                    .toString()
-                    .toLowerCase()
-                    .contains(query.toLowerCase()) ||
-                article.description
-                    .toString()
-                    .toLowerCase()
-                    .contains(query.toLowerCase()) ||
-                article.content
-                    .toString()
-                    .toLowerCase()
-                    .contains(query.toLowerCase()) ||
-                article.datePublished
-                    .toString()
-                    .toLowerCase()
-                    .contains(query.toLowerCase()) ||
-                article.source
-                    .toString()
-                    .toLowerCase()
-                    .contains(query.toLowerCase()))
+                article.toLowerCase().contains(query.toLowerCase()))
             .toList();
-    return articles.isEmpty
+    return suggestions.isEmpty
         ? Container(
             child: Center(
               child: Text(
-                'OOps...No Results Found',
+                'Search',
+                textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.overline.copyWith(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w300,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w500,
                     ),
               ),
             ),
           )
-        : GestureDetector(
-            onTap: () => showResults(context),
-            child: ListView.builder(
-              itemCount: articles.length,
-              itemBuilder: (context, index) {
-                final ArticleModel currentArticle = articles[index];
-                return AlternativeArticleCard(
-                    bottomPadding: 2,
-                    source: currentArticle.source,
-                    title: currentArticle.title,
-                    datePublished: currentArticle.datePublished,
-                    description: currentArticle.description,
-                    url: currentArticle.url,
-                    urlToImage: currentArticle.urlToImage,
-                    content: currentArticle.content);
-              },
-            ),
+        : ListView.builder(
+            itemCount: suggestions.length,
+            itemBuilder: (context, index) {
+              final currentSuggestion = suggestions[index];
+              return ListTile(
+                onTap: () => showRes(context, currentSuggestion),
+                leading: IconButton(
+                    icon: Icon(Icons.youtube_searched_for),
+                    onPressed: () =>
+                        addAndNavigate(context, currentSuggestion)),
+                title: Text(currentSuggestion),
+                trailing: IconButton(
+                    icon: Icon(Icons.subdirectory_arrow_left),
+                    onPressed: () {
+                      query = currentSuggestion;
+                    }),
+              );
+            },
           );
   }
 }

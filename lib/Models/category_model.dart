@@ -9,6 +9,10 @@ List<CategoryModel> loadCategories() {
   List<CategoryModel> categories = [
     CategoryModel(
         imageUrl:
+            'https://images.unsplash.com/photo-1572949645841-094f3a9c4c94?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=334&q=80',
+        categoryName: 'General'),
+    CategoryModel(
+        imageUrl:
             'https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=750&q=80',
         categoryName: 'Technology'),
     CategoryModel(
@@ -31,10 +35,6 @@ List<CategoryModel> loadCategories() {
         imageUrl:
             'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=750&q=80',
         categoryName: 'Sports'),
-    CategoryModel(
-        imageUrl:
-            'https://images.unsplash.com/photo-1572949645841-094f3a9c4c94?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=334&q=80',
-        categoryName: 'General'),
   ];
   return categories;
 }
