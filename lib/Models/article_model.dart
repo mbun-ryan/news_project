@@ -16,6 +16,7 @@ class ArticleModel {
   String sourceToQuery;
   String category;
   String language;
+  String sortBy;
 
   ArticleModel({
     this.author,
@@ -31,6 +32,7 @@ class ArticleModel {
     this.sourceToQuery,
     this.category,
     this.language,
+    this.sortBy,
   });
 
   final String apiKey = 'd31c365c442a42359a38431e467dfb48';
@@ -38,7 +40,7 @@ class ArticleModel {
   Future<List<ArticleModel>> loadArticles() async {
     String url =
         //'https://newsapi.org/v2/everything?q=$keywordToQuery&apiKey=$apiKey';
-        'https://newsapi.org/v2/top-headlines?country=$countryToQuery&apiKey=$apiKey';
+        'https://newsapi.org/v2/top-headlines?country=$countryToQuery&pageSize=100&apiKey=$apiKey';
     // 'https://newsapi.org/v2/top-headlines?sources=$sourceToQuery&apiKey=$apiKey';
     var response = await http.get(url);
     var jsonData = jsonDecode(response.body);
@@ -49,22 +51,30 @@ class ArticleModel {
               ? article['author']
               : 'Unavailable',
           source: article['source']['name'],
-          title: article['title'],
+          title: article['title'] != null
+              ? article['title']
+              : 'Title Unavailable.',
           description:
               article['description'] != null && article['description'] != ''
                   ? article['description']
                   : 'Sorry, No Description Available.',
-          url: article['url'],
+          url: article['url'] != null ? article['url'] : 'www.google.com',
           urlToImage: article['urlToImage'] != null
               ? article['urlToImage']
               : 'https://images.unsplash.com/photo-1572949645841-094f3a9c4c94?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=334&q=80',
-          datePublished: article['publishedAt'],
+          datePublished: article['publishedAt'] != null
+              ? article['publishedAt']
+              : 'Date Unavailable',
           content: article['content'] != null
               ? article['content']
               : 'Content Unavailable',
         );
         realArticles.add(newArticle);
       }
+    } else if (jsonData['status'] == 'error') {
+      print(jsonData);
+      print(
+          'Booooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo');
     }
     return realArticles;
   }
@@ -74,26 +84,30 @@ class ArticleModel {
         //'https://newsapi.org/v2/everything?q=$keywordToQuery&apiKey=$apiKey';
         //    'https://newsapi.org/v2/top-headlines?country=$countryToQuery&apiKey=$apiKey';
         // 'https://newsapi.org/v2/top-headlines?sources=$sourceToQuery&apiKey=$apiKey';
-        'https://newsapi.org/v2/top-headlines?country=$countryToQuery&category=$category&apiKey=$apiKey';
+        'https://newsapi.org/v2/top-headlines?country=$countryToQuery&pageSize=100&category=$category&apiKey=$apiKey';
     var response = await http.get(_url);
     var jsonData = jsonDecode(response.body);
     if (jsonData['status'] == 'ok') {
       for (var article in jsonData['articles']) {
         ArticleModel newArticle = ArticleModel(
-          author: article['author'] != null
+          author: article['author'] != null && article['author'] != ''
               ? article['author']
-              : 'Author Unavailable',
+              : 'Unavailable',
           source: article['source']['name'],
-          title: article['title'],
+          title: article['title'] != null
+              ? article['title']
+              : 'Title Unavailable.',
           description:
               article['description'] != null && article['description'] != ''
                   ? article['description']
                   : 'Sorry, No Description Available.',
-          url: article['url'] != null ? article['url'] : '',
+          url: article['url'] != null ? article['url'] : 'www.google.com',
           urlToImage: article['urlToImage'] != null
               ? article['urlToImage']
               : 'https://images.unsplash.com/photo-1572949645841-094f3a9c4c94?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=334&q=80',
-          datePublished: article['publishedAt'],
+          datePublished: article['publishedAt'] != null
+              ? article['publishedAt']
+              : 'Date Unavailable',
           content: article['content'] != null
               ? article['content']
               : 'Content Unavailable',
@@ -106,29 +120,34 @@ class ArticleModel {
 
   Future<List<ArticleModel>> loadQueriedArticles() async {
     String _url =
-        'https://newsapi.org/v2/everything?q=$keywordToQuery&language=$language&apiKey=$apiKey';
+        'https://newsapi.org/v2/everything?q=$keywordToQuery&pageSize=100&sortBy=$sortBy&language=$language&apiKey=$apiKey';
     //    'https://newsapi.org/v2/top-headlines?country=$countryToQuery&apiKey=$apiKey';
     // 'https://newsapi.org/v2/top-headlines?sources=$sourceToQuery&apiKey=$apiKey';
     // 'https://newsapi.org/v2/top-headlines?country=$countryToQuery&category=$category&apiKey=$apiKey';
     var response = await http.get(_url);
     var jsonData = jsonDecode(response.body);
     if (jsonData['status'] == 'ok') {
+      print(jsonData);
       for (var article in jsonData['articles']) {
         ArticleModel newArticle = ArticleModel(
-          author: article['author'] != null
+          author: article['author'] != null && article['author'] != ''
               ? article['author']
-              : 'Author Unavailable',
+              : 'Unavailable',
           source: article['source']['name'],
-          title: article['title'],
+          title: article['title'] != null
+              ? article['title']
+              : 'Title Unavailable.',
           description:
               article['description'] != null && article['description'] != ''
                   ? article['description']
-                  : 'Sorry, No Description Available.',
-          url: article['url'] != null ? article['url'] : '',
+                  : 'Sorry, Description Unavailable.',
+          url: article['url'] != null ? article['url'] : 'www.google.com',
           urlToImage: article['urlToImage'] != null
               ? article['urlToImage']
               : 'https://images.unsplash.com/photo-1572949645841-094f3a9c4c94?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=334&q=80',
-          datePublished: article['publishedAt'],
+          datePublished: article['publishedAt'] != null
+              ? article['publishedAt']
+              : 'Date Unavailable',
           content: article['content'] != null
               ? article['content']
               : 'Content Unavailable',

@@ -1,14 +1,18 @@
+import 'dart:math';
+
 import 'package:flag/flag.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:news_project/Models/article_model.dart';
+import 'package:news_project/Models/helpers.dart';
 import 'package:news_project/Widgets/article_card.dart';
 import 'package:news_project/Widgets/article_of_the_day_card.dart';
-import 'package:news_project/Widgets/helpers.dart';
 import 'package:news_project/Widgets/search_for_articles.dart';
 import 'package:news_project/screens/all_articles_screen.dart';
 
 class Dashboard extends StatefulWidget {
+  String country = 'us';
+
   @override
   _DashboardState createState() => _DashboardState();
 }
@@ -16,94 +20,102 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> {
   Future<void> connection() async {
     await ArticleModel(
-      countryToQuery: country,
+      countryToQuery: widget.country,
     ).loadArticles();
-    reloadNews(country);
+    reloadNews(widget.country);
   }
 
-  int rand = 10;
-  String country = 'us';
   Future news;
   @override
   void initState() {
     super.initState();
     news = ArticleModel(
-      countryToQuery: country,
+      countryToQuery: widget.country,
     ).loadArticles();
   }
 
   void reloadNews(String _) {
-    country = _;
+    widget.country = _;
     setState(() {
       news = ArticleModel(
-        countryToQuery: country,
+        countryToQuery: widget.country,
       ).loadArticles();
     });
   }
 
+  String country2;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       //backgroundColor: Colors.white70,
       appBar: AppBar(
         actions: [
-          Stack(
-            children: [
-              DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                iconSize: 40,
-                icon: Icon(Icons.edit_location),
-                iconEnabledColor: Colors.white,
-                onChanged: (value) {
-                  reloadNews(value);
-                },
-                items: (Helpers()
-                    .countries
-                    .map((_country) => DropdownMenuItem<String>(
-                          child: Container(
-                            //margin: EdgeInsets.all(0),
-                            //height: 50,
-                            // width: 140,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Flag(
-                                  'ad',
-                                  width: 30,
-                                  height: 30,
-                                ),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                Container(
-                                  width: 95,
-                                  child: Text(
-                                    _country['name'],
-                                    style: TextStyle(
-                                        fontSize: 19,
-                                        fontWeight: FontWeight.w300),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          value: _country['symbol'],
-                        ))).toList(),
-              )),
-              Positioned(
-                right: 40,
-                child: MediaQuery.of(context).size.width > 600
-                    ? IconButton(
-                        icon: Icon(Icons.search),
-                        onPressed: () {
-                          showSearch(
-                            context: context,
-                            delegate: QueryArticles(),
-                          );
-                        })
-                    : Container(),
+          MediaQuery.of(context).size.width > 600
+              ? Container(
+                  margin: EdgeInsets.all(10),
+                  child: IconButton(
+                      icon: Icon(Icons.search),
+                      onPressed: () {
+                        showSearch(
+                          context: context,
+                          delegate: QueryArticles(),
+                        );
+                      }),
+                )
+              : Container(),
+          Padding(
+            padding: EdgeInsets.only(right: 5),
+            child: DropdownButton<String>(
+              iconSize: 30,
+              icon: Icon(Icons.location_on),
+              iconEnabledColor: Colors.white,
+              underline: Container(
+                height: .3,
+                color: Colors.white,
               ),
-            ],
+              value: country2,
+              hint: Text('Country'),
+              onChanged: (value) {
+                setState(() {
+                  country2 = value;
+                });
+                reloadNews(value);
+              },
+              items: (Helpers().countries.map(
+                    (_country) => DropdownMenuItem<String>(
+                      child: Container(
+                        //margin: EdgeInsets.all(0),
+                        //height: 50,
+                        // width: 140,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 25,
+                              height: 20,
+                              child: Flag(
+                                _country['symbol'],
+                                fit: BoxFit.fitHeight,
+                              ),
+                            ),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            Container(
+                              width: 105,
+                              child: Text(
+                                _country['name'],
+                                style: TextStyle(
+                                    fontSize: 19, fontWeight: FontWeight.w300),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      value: _country['symbol'],
+                    ),
+                  )).toList(),
+            ),
           ),
         ],
         title: Text('Dashboard'),
@@ -118,7 +130,9 @@ class _DashboardState extends State<Dashboard> {
               return Center(
                 child: CircularProgressIndicator(),
               );
-            } else if (snapshot.error != null) {
+            } else if (snapshot.error != null ||
+                snapshot.data == [] ||
+                snapshot.data == null) {
               return Container(
                   child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -137,7 +151,32 @@ class _DashboardState extends State<Dashboard> {
                   ),
                   OutlineButton(
                     onPressed: () {
-                      reloadNews(country);
+                      reloadNews(widget.country);
+                    },
+                    child: Text('Refresh'),
+                  )
+                ],
+              ));
+            } else if (snapshot.data.isEmpty) {
+              return Container(
+                  child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Center(
+                    child: Text(
+                      'Internal Error Occurred',
+                      style: TextStyle(fontSize: 30, color: Colors.grey),
+                    ),
+                  ),
+                  Container(
+                    child: Text(
+                      'Sorry',
+                      style: TextStyle(fontSize: 20, color: Colors.grey),
+                    ),
+                  ),
+                  OutlineButton(
+                    onPressed: () {
+                      reloadNews(widget.country);
                     },
                     child: Text('Refresh'),
                   )
@@ -201,7 +240,9 @@ class _DashboardState extends State<Dashboard> {
                               onTap: () => Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => AllArticles(),
+                                  builder: (context) => AllArticles(
+                                    country: widget.country,
+                                  ),
                                 ),
                               ),
                               child: MediaQuery.of(context).size.width > 600
@@ -231,7 +272,7 @@ class _DashboardState extends State<Dashboard> {
                         ),
                       ),
                       Container(
-                        height: 210,
+                        height: 220,
                         child: ListView.builder(
                           physics: BouncingScrollPhysics(),
                           shrinkWrap: true,
@@ -282,63 +323,27 @@ class _DashboardState extends State<Dashboard> {
                                 ),
                         ],
                       ),
-                      MediaQuery.of(context).size.width > 600
-                          ? Container(
-                              height: 210,
-                              child: ListView.builder(
-                                shrinkWrap: true,
-                                scrollDirection: Axis.horizontal,
-                                itemBuilder: (context, index) {
-                                  var currentArticle =
-                                      snapshot.data[index + 13];
-                                  return ArticleOfTheDayCard(
-                                    author: currentArticle.author,
-                                    source: currentArticle.source,
-                                    content: currentArticle.content,
-                                    title: currentArticle.title,
-                                    datePublished: currentArticle.datePublished,
-                                    description: currentArticle.description,
-                                    url: currentArticle.url,
-                                    urlToImage: currentArticle.urlToImage,
-                                  );
-                                },
-                                itemCount: 2,
-                              ),
-                            )
-                          : MediaQuery.of(context).size.width > 1100
-                              ? Container(
-                                  height: 210,
-                                  child: ListView.builder(
-                                    shrinkWrap: true,
-                                    scrollDirection: Axis.horizontal,
-                                    itemBuilder: (context, index) {
-                                      var currentArticle = snapshot.data[index];
-                                      return ArticleOfTheDayCard(
-                                        author: currentArticle.author,
-                                        source: currentArticle.source,
-                                        content: currentArticle.content,
-                                        title: currentArticle.title,
-                                        datePublished:
-                                            currentArticle.datePublished,
-                                        description: currentArticle.description,
-                                        url: currentArticle.url,
-                                        urlToImage: currentArticle.urlToImage,
-                                      );
-                                    },
-                                    itemCount: 3,
-                                  ),
-                                )
-                              : ArticleOfTheDayCard(
-                                  author: snapshot.data[rand].author,
-                                  source: snapshot.data[rand].source,
-                                  content: snapshot.data[rand].content,
-                                  title: snapshot.data[rand].title,
-                                  datePublished:
-                                      snapshot.data[rand].datePublished,
-                                  description: snapshot.data[rand].description,
-                                  url: snapshot.data[rand].url,
-                                  urlToImage: snapshot.data[rand].urlToImage,
-                                )
+                      Container(
+                          height: 210,
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            scrollDirection: Axis.horizontal,
+                            itemBuilder: (context, index) {
+                              var currentArticle = snapshot.data[index];
+                              int rand = Random().nextInt(snapshot.data.length);
+                              return ArticleOfTheDayCard(
+                                author: currentArticle.author,
+                                source: currentArticle.source,
+                                content: currentArticle.content,
+                                title: currentArticle.title,
+                                datePublished: currentArticle.datePublished,
+                                description: currentArticle.description,
+                                url: currentArticle.url,
+                                urlToImage: currentArticle.urlToImage,
+                              );
+                            },
+                            itemCount: 1,
+                          ))
                     ],
                   ),
                 ),
