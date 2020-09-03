@@ -1,16 +1,32 @@
-# news_project
+# News++
 
-Flutter News Application For The Chingu Explorer Cohort.
 
-## Getting Started
+## Overview
+A News Aggregator Mobile App Built With Flutter, as a Solo Project For The Chingu Explorer Cohort which took place on August 2020
 
-This project is a starting point for a Flutter application.
+The app pulls data from [News API](https://newsapi.org/) to receive latest news articles and show them to users.
 
-A few resources to get you started if this is your first Flutter project:
+## Features
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+- On launch, the **Dashboard** opens, where users can scroll through 15 articles while viewing for each article, an **image**, **title** and **description**, with one article highlighted as the **article of the day**.
+- Tapping on the search bar opens the search screen where users can query for articles with keywords, sort them by **language**, **relevancy**, or **popularity**.
+- Tapping on the **country** dropdown allows users to select a given country from where they want news from. Articles from a country comes in the country's language by default. The default country on launch is the *USA*.
+- Tapping on **All Articles** will jump to the all *articles screen* where users will get articles from their selected country.
+- All **article cards** can be *long-pressed*. Long-pressing an article either prompts to open the article in **Web Mode**(article's website) or **share the article** or shows a preview of the **article's details** depending on where you are and what you tap.
+- In the **drawer** view,
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+  - Tapping on **All Articles** will jump to the all *articles screen*.
+  - Users can tap on **Translate To English** to translate all news articles in other languages to *English*, except in the "search" mode (where the language can be sorted)
+
+- In the **All Articles** screen, all articles from the selected country is shown. Articles are further grouped into categories like **Technology** and **Health**.
+
+## Dependencies
+- External Dependencies Include:
+  - [dart-lang/http](https://github.com/dart-lang/http)
+  - [Baseflow/flutter_cached_network_image](https://github.com/Baseflow/flutter_cached_network_image)
+  - [dart-lang/intl](https://github.com/dart-lang/intl)
+  - [flutter/plugins/packages/webview_flutter](https://github.com/flutter/plugins/tree/master/packages/webview_flutter)
+  - [LunaGao/flag_flutter](https://github.com/LunaGao/flag_flutter)
+  - [gabrielpacheco23/google-translator](https://github.com/gabrielpacheco23/google-translator)
+  - [esysberlin/esys-flutter-share](https://github.com/esysberlin/esys-flutter-share)
+
