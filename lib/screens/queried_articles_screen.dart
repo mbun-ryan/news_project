@@ -2,8 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:news_project/Models/article_model.dart';
 import 'package:news_project/Models/helpers.dart';
+import 'package:news_project/Models/size_config.dart';
 import 'package:news_project/Widgets/alternative_article_card.dart';
 
+// ignore: must_be_immutable
 class QueriedScreen extends StatefulWidget {
   String keyword;
   QueriedScreen({@required this.keyword});
@@ -13,14 +15,9 @@ class QueriedScreen extends StatefulWidget {
 
 class _QueriedScreenState extends State<QueriedScreen> {
   Future<void> connection() async {
-    await ArticleModel(
-      keywordToQuery: widget.keyword,
-      language: language,
-      sortBy: sortBy,
-    ).loadQueriedArticles();
-    setState(() {
-      reloadNews(lLanguage: language, sSortBy: sortBy);
-    });
+    await Future.delayed(Duration(seconds: 2));
+
+    reloadNews(lLanguage: language, sSortBy: sortBy);
   }
 
   String sortBy;
@@ -53,86 +50,85 @@ class _QueriedScreenState extends State<QueriedScreen> {
   String _sortBy, _language;
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 5),
-            child: DropdownButton<String>(
-              // iconSize: 30,
-              icon: Icon(Icons.arrow_drop_down_circle),
-              hint: Text('Language'),
-              underline: Container(
-                height: .3,
-                color: Colors.white,
-              ),
-              iconEnabledColor: Colors.white,
-              value: _language,
-              onChanged: (value) {
-                setState(() {
-                  _language = value;
-                });
-                language = value;
-                reloadNews(lLanguage: language, sSortBy: sortBy);
-              },
-              items: (Helpers()
-                  .languages
-                  .map((_language) => DropdownMenuItem<String>(
-                        child: Container(
-                          //margin: EdgeInsets.all(0),
-                          //height: 50,
-                          // width: 140,
-                          child: Center(
-                            child: Text(
-                              _language['language'],
-                              style: TextStyle(
-                                  fontSize: 19, fontWeight: FontWeight.w300),
-                            ),
+    ScreenSizeConfig().init(context);
+    final appBar = AppBar(
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 5),
+          child: DropdownButton<String>(
+            // iconSize: 30,
+            icon: Icon(Icons.arrow_drop_down_circle),
+            hint: Text('Language'),
+            underline: Container(
+              height: .3,
+              color: Colors.white,
+            ),
+            iconEnabledColor: Colors.white,
+            value: _language,
+            onChanged: (value) {
+              setState(() {
+                _language = value;
+              });
+              language = value;
+              reloadNews(lLanguage: language, sSortBy: sortBy);
+            },
+            items: (Helpers()
+                .languages
+                .map((_language) => DropdownMenuItem<String>(
+                      child: Container(
+                        child: Center(
+                          child: Text(
+                            _language['language'],
+                            style: TextStyle(
+                                fontSize: 19, fontWeight: FontWeight.w300),
                           ),
                         ),
-                        value: _language['symbol'],
-                      ))).toList(),
-            ),
+                      ),
+                      value: _language['symbol'],
+                    ))).toList(),
           ),
-          Padding(
-            padding: const EdgeInsets.only(right: 5),
-            child: DropdownButton<String>(
-              //iconSize: 30,
-              icon: Icon(Icons.arrow_drop_down_circle),
-              iconEnabledColor: Colors.white,
-              value: _sortBy,
-              hint: Text('Sort By'),
-              underline: Container(
-                height: .3,
-                color: Colors.white,
-              ),
-              onChanged: (value) {
-                setState(() {
-                  _sortBy = value;
-                });
-                sortBy = value;
-                reloadNews(lLanguage: language, sSortBy: sortBy);
-              },
-              items: (Helpers().sorting.map((_sort) => DropdownMenuItem<String>(
-                    child: Container(
-                      //margin: EdgeInsets.all(0),
-                      //height: 50,
-                      // width: 140,
-                      child: Center(
-                        child: Text(
-                          _sort['name'],
-                          style: TextStyle(
-                              fontSize: 19, fontWeight: FontWeight.w300),
-                        ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(right: 5),
+          child: DropdownButton<String>(
+            //iconSize: 30,
+            icon: Icon(Icons.arrow_drop_down_circle),
+            iconEnabledColor: Colors.white,
+            value: _sortBy,
+            hint: Text('Sort By'),
+            underline: Container(
+              height: .3,
+              color: Colors.white,
+            ),
+            onChanged: (value) {
+              setState(() {
+                _sortBy = value;
+              });
+              sortBy = value;
+              reloadNews(lLanguage: language, sSortBy: sortBy);
+            },
+            items: (Helpers().sorting.map((_sort) => DropdownMenuItem<String>(
+                  child: Container(
+                    //margin: EdgeInsets.all(0),
+                    //height: 50,
+                    // width: 140,
+                    child: Center(
+                      child: Text(
+                        _sort['name'],
+                        style: TextStyle(
+                            fontSize: 19, fontWeight: FontWeight.w300),
                       ),
                     ),
-                    value: _sort['value'],
-                  ))).toList(),
-            ),
+                  ),
+                  value: _sort['value'],
+                ))).toList(),
           ),
-        ],
-        title: Text(widget.keyword.toUpperCase()),
-      ),
+        ),
+      ],
+      title: Text(widget.keyword.toUpperCase()),
+    );
+    return Scaffold(
+      appBar: appBar,
       body: RefreshIndicator(
         onRefresh: connection,
         child: FutureBuilder(
@@ -282,13 +278,18 @@ class _QueriedScreenState extends State<QueriedScreen> {
                     child: Column(
                       children: [
                         Container(
-                          height: 550,
+                          height: ScreenSizeConfig.screenWidth > 600
+                              ? (ScreenSizeConfig.blockSizeVertical -
+                                      appBar.preferredSize.height) *
+                                  .9
+                              : (ScreenSizeConfig.blockSizeVertical -
+                                      appBar.preferredSize.height) *
+                                  .95,
                           child: ListView.builder(
                             physics: BouncingScrollPhysics(),
                             shrinkWrap: true,
                             itemCount: snapshot.data.length,
                             itemBuilder: (context, index) {
-                              // ArticleModel articleModel = ArticleModel();
                               var currentArticle = snapshot.data[index];
                               return AlternativeArticleCard(
                                 bottomPadding:

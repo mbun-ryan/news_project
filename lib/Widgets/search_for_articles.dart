@@ -3,12 +3,21 @@ import 'package:news_project/Models/article_model.dart';
 import 'package:news_project/screens/queried_articles_screen.dart';
 
 class QueryArticles extends SearchDelegate<ArticleModel> {
-  List<String> searchedArticles = ['Cameroon', 'Huawei', 'HP'];
+  List<String> searchedArticles = [
+    'COVID-19',
+    'Cameroon',
+    'Bitcoin',
+    'Huawei',
+    'HP',
+    'SAMSUNG',
+    'Apple',
+    '5G',
+    'Donald Trump'
+  ];
   void addQ(String Q) {
     if (Q.isNotEmpty && Q != ' ' && !searchedArticles.contains(Q)) {
-      searchedArticles.add(Q);
+      searchedArticles.insert(0, Q);
     }
-    //searchedArticles.add(Q);
   }
 
   void showRes(BuildContext ctx, String que) {
@@ -22,9 +31,7 @@ class QueryArticles extends SearchDelegate<ArticleModel> {
     Navigator.push(
       ctx,
       MaterialPageRoute(
-        builder: (context) =>
-            //searchedArticles.add(query);
-            QueriedScreen(keyword: currentSuggest),
+        builder: (context) => QueriedScreen(keyword: currentSuggest),
       ),
     );
   }

@@ -1,13 +1,16 @@
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:esys_flutter_share/esys_flutter_share.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
+import 'package:news_project/Models/size_config.dart';
 import 'package:news_project/screens/independent_articles_screen.dart';
 import 'package:news_project/screens/web_mode.dart';
 
+// ignore: must_be_immutable
 class AlternativeArticleCard extends StatelessWidget {
   double bottomPadding = 0;
 
@@ -34,6 +37,7 @@ class AlternativeArticleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ScreenSizeConfig().init(context);
     return GestureDetector(
       onLongPress: () => showDialog(
         context: context,
@@ -67,7 +71,8 @@ class AlternativeArticleCard extends StatelessWidget {
                   content: content,
                   source: source))),
       child: Card(
-        margin: MediaQuery.of(context).orientation == Orientation.landscape
+        color: Theme.of(context).canvasColor.withOpacity(.7),
+        margin: ScreenSizeConfig.screenWidth > 600
             ? EdgeInsets.only(
                 left: 70, right: 70, top: 10, bottom: bottomPadding)
             : EdgeInsets.only(
@@ -97,7 +102,6 @@ class AlternativeArticleCard extends StatelessWidget {
                             LinearProgressIndicator(),
                         errorWidget: (context, url, error) => Icon(Icons.error),
                       ),
-                      //color: Colors.grey,
                       width: 100,
                       height: 100,
                     ),
@@ -117,25 +121,29 @@ class AlternativeArticleCard extends StatelessWidget {
                           child: Text(title,
                               overflow: TextOverflow.ellipsis,
                               maxLines: 3,
+                              // ignore: deprecated_member_use
                               style: Theme.of(context).textTheme.title.copyWith(
-                                    fontWeight: FontWeight.w500,
                                     fontSize: 16,
                                   )),
                         ),
                         Container(
                           padding: EdgeInsets.only(
                               left: 10, right: 0, top: 0, bottom: 0),
-                          child: Text(
-                            description,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 2,
-                            style: TextStyle(
+                          child: Text(description,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 2,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .subtitle1
+                                  .copyWith(
+                                    fontWeight: FontWeight.w300,
+                                  ) /*TextStyle(
                               fontSize: 14,
                               color: Colors.grey[700],
                               letterSpacing: .5,
                               wordSpacing: 2,
-                            ),
-                          ),
+                            ),*/
+                              ),
                         ),
                       ],
                     ),
@@ -150,10 +158,10 @@ class AlternativeArticleCard extends StatelessWidget {
                 Container(
                   padding: EdgeInsets.only(left: 10, top: 0, bottom: 8),
                   child: Text(
-                    '${DateFormat.yMMMMd().format(DateTime.parse(datePublished))}',
+                    '${DateFormat.yMMMd().format(DateTime.parse(datePublished))}',
                     style: Theme.of(context)
                         .textTheme
-                        .overline
+                        .subtitle2
                         .copyWith(fontSize: 15),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -165,10 +173,9 @@ class AlternativeArticleCard extends StatelessWidget {
                   padding: EdgeInsets.only(left: 0, top: 0, bottom: 8),
                   child: Text(
                     '#$source',
-                    style: Theme.of(context)
-                        .textTheme
-                        .overline
-                        .copyWith(fontSize: 18, color: Colors.grey),
+                    style: Theme.of(context).textTheme.subtitle1.copyWith(
+                        //  color: Colors.grey,
+                        ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
@@ -183,13 +190,14 @@ class AlternativeArticleCard extends StatelessWidget {
                         context: context,
                         builder: (context) {
                           return AlertDialog(
+                            backgroundColor:
+                                Theme.of(context).canvasColor.withOpacity(.95),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)),
                             title: Text('Alert!'),
                             content: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text(
-                                  'Do You Want To Open The Article In Web Mode?',
-                                ),
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceAround,
@@ -197,22 +205,30 @@ class AlternativeArticleCard extends StatelessWidget {
                                     OutlineButton(
                                         onPressed: () {
                                           Navigator.pop(context);
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  ArticleWebMode(
+                                                url: url,
+                                              ),
+                                            ),
+                                          );
                                         },
-                                        child: Text('No')),
+                                        child: Text('Web Mode')),
                                     OutlineButton(
                                         onPressed: () {
                                           Navigator.pop(context);
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      ArticleWebMode(
-                                                        url: url,
-                                                      )));
+                                          Share.text(title, url, 'text/plain');
                                         },
-                                        child: Text('Yes')),
+                                        child: Text('Share')),
                                   ],
                                 ),
+                                OutlineButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text('Back')),
                               ],
                             ),
                           );

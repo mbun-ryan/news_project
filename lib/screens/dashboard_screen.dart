@@ -1,17 +1,21 @@
-import 'dart:math';
+import 'dart:ui';
 
 import 'package:flag/flag.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:news_project/Models/article_model.dart';
 import 'package:news_project/Models/helpers.dart';
+import 'package:news_project/Models/size_config.dart';
 import 'package:news_project/Widgets/article_card.dart';
 import 'package:news_project/Widgets/article_of_the_day_card.dart';
 import 'package:news_project/Widgets/search_for_articles.dart';
 import 'package:news_project/screens/all_articles_screen.dart';
 
+// ignore: must_be_immutable
 class Dashboard extends StatefulWidget {
   String country = 'us';
+  bool lockLanguageToEnglish = false;
 
   @override
   _DashboardState createState() => _DashboardState();
@@ -19,35 +23,52 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   Future<void> connection() async {
-    await ArticleModel(
-      countryToQuery: widget.country,
-    ).loadArticles();
-    reloadNews(widget.country);
+    await Future.delayed(Duration(seconds: 2));
+    reloadNews(
+      widget.country,
+    );
   }
 
   Future news;
   @override
   void initState() {
     super.initState();
+    widget.lockLanguageToEnglish = false;
     news = ArticleModel(
-      countryToQuery: widget.country,
-    ).loadArticles();
+            countryToQuery: widget.country,
+            lockLanguageToEnglish: widget.lockLanguageToEnglish)
+        .loadArticles();
   }
 
   void reloadNews(String _) {
     widget.country = _;
     setState(() {
       news = ArticleModel(
-        countryToQuery: widget.country,
-      ).loadArticles();
+              countryToQuery: widget.country,
+              lockLanguageToEnglish: widget.lockLanguageToEnglish)
+          .loadArticles();
     });
+  }
+
+  bool isTranslatedEnglish = false;
+  void toggleEnglishTranslation() {
+    isTranslatedEnglish = !isTranslatedEnglish;
+    if (widget.lockLanguageToEnglish == null) {
+      widget.lockLanguageToEnglish = true;
+    } else if (widget.lockLanguageToEnglish) {
+      widget.lockLanguageToEnglish = false;
+    } else {
+      widget.lockLanguageToEnglish = true;
+    }
+    reloadNews(widget.country);
+    Navigator.of(context).pop();
   }
 
   String country2;
   @override
   Widget build(BuildContext context) {
+    ScreenSizeConfig().init(context);
     return Scaffold(
-      //backgroundColor: Colors.white70,
       appBar: AppBar(
         actions: [
           MediaQuery.of(context).size.width > 600
@@ -63,7 +84,7 @@ class _DashboardState extends State<Dashboard> {
                       }),
                 )
               : Container(),
-          Padding(
+          Container(
             padding: EdgeInsets.only(right: 5),
             child: DropdownButton<String>(
               iconSize: 30,
@@ -120,76 +141,189 @@ class _DashboardState extends State<Dashboard> {
         ],
         title: Text('Dashboard'),
       ),
-      drawer: Drawer(),
-      body: RefreshIndicator(
-        onRefresh: connection,
-        child: FutureBuilder(
-          future: news,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            } else if (snapshot.error != null ||
-                snapshot.data == [] ||
-                snapshot.data == null) {
-              return Container(
+      drawer: Drawer(
+        child: ListView(
+          children: [
+            DrawerHeader(
+                padding: EdgeInsets.all(1),
+                child: Container(
+                  padding: EdgeInsets.all(10),
                   child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Center(
-                    child: Text(
-                      'Network Error Occured',
-                      style: TextStyle(fontSize: 30, color: Colors.grey),
-                    ),
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            top: 5, left: 20, right: 20, bottom: 10),
+                        child: Text(
+                          'Get The Latest News From Top Trust Worthy News Sources.',
+                          // ignore: deprecated_member_use
+                          style: Theme.of(context).textTheme.title.copyWith(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w300,
+                              fontFamily: 'OpenSans',
+                              color: Colors.white60),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(0),
+                        child: Text(
+                          'This app is still in "BETA", so expect some minor issues.',
+                          textAlign: TextAlign.center,
+                          // ignore: deprecated_member_use
+                          style: Theme.of(context).textTheme.title.copyWith(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w300,
+                              color: Colors.white),
+                        ),
+                      ),
+                    ],
                   ),
-                  Container(
-                    child: Text(
-                      'Check Your Connection',
-                      style: TextStyle(fontSize: 20, color: Colors.grey),
+                  color: Theme.of(context).primaryColor,
+                )),
+            ListTile(
+                onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AllArticles(
+                          lockLanguageToEnglish: widget.lockLanguageToEnglish,
+                          country: widget.country,
+                        ),
+                      ),
                     ),
-                  ),
-                  OutlineButton(
-                    onPressed: () {
-                      reloadNews(widget.country);
-                    },
-                    child: Text('Refresh'),
-                  )
-                ],
-              ));
-            } else if (snapshot.data.isEmpty) {
-              return Container(
-                  child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Center(
-                    child: Text(
-                      'Internal Error Occurred',
-                      style: TextStyle(fontSize: 30, color: Colors.grey),
+                leading: Icon(Icons.call_to_action),
+                trailing: Icon(Icons.arrow_upward),
+                title: Text(
+                  'All Articles',
+                  style:
+                      // ignore: deprecated_member_use
+                      Theme.of(context).textTheme.title.copyWith(fontSize: 17),
+                )),
+            Divider(
+              thickness: .5,
+              color: Colors.blueGrey,
+            ),
+            ListTile(
+              leading: Icon(Icons.language),
+              subtitle: Padding(
+                padding: const EdgeInsets.only(top: 3),
+                child: Text(
+                  '(Beta)\nTranslate news articles in other languages to English, except in "search" mode.',
+                  style: Theme.of(context)
+                      .textTheme
+                      // ignore: deprecated_member_use
+                      .subhead
+                      .copyWith(fontSize: 15, fontWeight: FontWeight.w300),
+                ),
+              ),
+              trailing: IconButton(
+                padding: EdgeInsets.only(left: 40),
+                icon: Icon(isTranslatedEnglish
+                    ? Icons.check_box
+                    : Icons.check_box_outline_blank),
+                onPressed: () => toggleEnglishTranslation(),
+              ),
+              title: Text(
+                'Translate To English',
+                // ignore: deprecated_member_use
+                style: Theme.of(context).textTheme.title.copyWith(
+                      fontSize: 17,
                     ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      body: FutureBuilder(
+        future: news,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(),
+                widget.lockLanguageToEnglish
+                    ? Center(
+                        child: Container(
+                          padding: EdgeInsets.only(top: 10),
+                          child: Text(
+                            'Getting And Translating News To English',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 20, color: Colors.grey),
+                          ),
+                        ),
+                      )
+                    : Center(
+                        child: Container(
+                          padding: EdgeInsets.only(top: 10),
+                          child: Text(
+                            'Getting News',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 20, color: Colors.grey),
+                          ),
+                        ),
+                      )
+              ],
+            );
+          } else if (snapshot.error != null ||
+              snapshot.data == [] ||
+              snapshot.data == null) {
+            return Container(
+                child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Center(
+                  child: Text(
+                    'Network Error Occurred',
+                    style: TextStyle(fontSize: 30, color: Colors.grey),
                   ),
-                  Container(
-                    child: Text(
-                      'Sorry',
-                      style: TextStyle(fontSize: 20, color: Colors.grey),
-                    ),
+                ),
+                Container(
+                  child: Text(
+                    'Check Your Connection',
+                    style: TextStyle(fontSize: 20, color: Colors.grey),
                   ),
-                  OutlineButton(
-                    onPressed: () {
-                      reloadNews(widget.country);
-                    },
-                    child: Text('Refresh'),
-                  )
-                ],
-              ));
-            } else {
-              return SingleChildScrollView(
+                ),
+                OutlineButton(
+                  onPressed: () {
+                    reloadNews(widget.country);
+                  },
+                  child: Text('Refresh'),
+                )
+              ],
+            ));
+          } else if (snapshot.data.isEmpty) {
+            return Container(
+                child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Center(
+                  child: Text(
+                    'Internal Error Occurred',
+                    style: TextStyle(fontSize: 30, color: Colors.grey),
+                  ),
+                ),
+                Container(
+                  child: Text(
+                    'Sorry',
+                    style: TextStyle(fontSize: 20, color: Colors.grey),
+                  ),
+                ),
+                OutlineButton(
+                  onPressed: () {
+                    reloadNews(widget.country);
+                  },
+                  child: Text('Refresh'),
+                )
+              ],
+            ));
+          } else {
+            return RefreshIndicator(
+              onRefresh: connection,
+              child: SingleChildScrollView(
                 physics: BouncingScrollPhysics(),
                 child: Container(
-                  margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                  // padding: EdgeInsets.all(10),
+                  margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                   child: Column(
-                    // crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       MediaQuery.of(context).size.width > 600
                           ? Container()
@@ -197,7 +331,8 @@ class _DashboardState extends State<Dashboard> {
                               onTap: () => showSearch(
                                   context: context, delegate: QueryArticles()),
                               child: Container(
-                                padding: EdgeInsets.only(right: 10),
+                                height: ScreenSizeConfig.safeBlockVertical * 10,
+                                // padding: EdgeInsets.only(right: 10, top: 20),
                                 child: TextField(
                                   enabled: false,
                                   decoration: InputDecoration(
@@ -220,21 +355,35 @@ class _DashboardState extends State<Dashboard> {
                             MediaQuery.of(context).size.width > 600
                                 ? Container(
                                     margin: EdgeInsets.all(0),
-                                    color: Colors.white.withOpacity(1),
+                                    color: Colors.white.withOpacity(.3),
                                     padding: EdgeInsets.all(10),
                                     child: Text(
                                       'Articles',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 17,
-                                          color: Colors.blue[800]),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          // ignore: deprecated_member_use
+                                          .headline
+                                          .copyWith(
+                                            // fontWeight: FontWeight.bold,
+                                            fontSize: 17,
+                                            fontFamily: 'OpenSans',
+
+                                            color: Theme.of(context)
+                                                .primaryColor
+                                                .withOpacity(1),
+                                          ),
                                     ),
                                   )
                                 : Text(
                                     'Articles',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w800,
-                                        fontSize: 17),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        // ignore: deprecated_member_use
+                                        .headline
+                                        .copyWith(
+                                          fontFamily: 'OpenSans',
+                                          fontSize: 17,
+                                        ),
                                   ),
                             GestureDetector(
                               onTap: () => Navigator.push(
@@ -242,6 +391,8 @@ class _DashboardState extends State<Dashboard> {
                                 MaterialPageRoute(
                                   builder: (context) => AllArticles(
                                     country: widget.country,
+                                    lockLanguageToEnglish:
+                                        widget.lockLanguageToEnglish,
                                   ),
                                 ),
                               ),
@@ -253,30 +404,37 @@ class _DashboardState extends State<Dashboard> {
                                         padding: EdgeInsets.all(10),
                                         child: Text(
                                           'All Articles',
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 17,
-                                              color: Colors.blue[800]),
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              // ignore: deprecated_member_use
+                                              .title
+                                              .copyWith(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 19,
+                                                  fontFamily: 'OpenSans',
+                                                  color: Colors.blue[900]),
                                         ),
                                       ),
                                     )
                                   : Text(
                                       'All Articles',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 17,
-                                          color: Colors.blue[800]),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          // ignore: deprecated_member_use
+                                          .title
+                                          .copyWith(
+                                              fontSize: 19,
+                                              color: Colors.blue[900]),
                                     ),
                             ),
                           ],
                         ),
                       ),
                       Container(
-                        height: 220,
+                        height: ScreenSizeConfig.safeBlockVertical * 38,
                         child: ListView.builder(
                           physics: BouncingScrollPhysics(),
                           shrinkWrap: true,
-                          //reverse: true,
                           scrollDirection: Axis.horizontal,
                           itemBuilder: (context, index) {
                             var currentArticle = snapshot.data[index];
@@ -291,7 +449,7 @@ class _DashboardState extends State<Dashboard> {
                               urlToImage: currentArticle.urlToImage,
                             );
                           },
-                          itemCount: 10,
+                          itemCount: 15,
                         ),
                       ),
                       Row(
@@ -300,14 +458,21 @@ class _DashboardState extends State<Dashboard> {
                           MediaQuery.of(context).size.width > 600
                               ? Container(
                                   margin: EdgeInsets.only(top: 15, bottom: 5),
-                                  color: Colors.white.withOpacity(1),
+                                  color: Colors.white.withOpacity(.3),
                                   padding: EdgeInsets.all(10),
                                   child: Text(
-                                    'Articles Of The Day',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 17,
-                                        color: Colors.blue[800]),
+                                    'Article Of The Day',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        // ignore: deprecated_member_use
+                                        .headline
+                                        .copyWith(
+                                          fontSize: 17,
+                                          fontFamily: 'OpenSans',
+                                          color: Theme.of(context)
+                                              .primaryColor
+                                              .withOpacity(1),
+                                        ),
                                   ),
                                 )
                               : Container(
@@ -316,41 +481,40 @@ class _DashboardState extends State<Dashboard> {
                                       top: 15, bottom: 5, left: 0),
                                   child: Text(
                                     'Article Of The Day',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 17),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        // ignore: deprecated_member_use
+                                        .headline
+                                        .copyWith(
+                                          fontSize: 17,
+                                          fontFamily: 'OpenSans',
+                                        ),
                                   ),
                                 ),
                         ],
                       ),
                       Container(
-                          height: 210,
-                          child: ListView.builder(
-                            shrinkWrap: true,
-                            scrollDirection: Axis.horizontal,
-                            itemBuilder: (context, index) {
-                              var currentArticle = snapshot.data[index];
-                              int rand = Random().nextInt(snapshot.data.length);
-                              return ArticleOfTheDayCard(
-                                author: currentArticle.author,
-                                source: currentArticle.source,
-                                content: currentArticle.content,
-                                title: currentArticle.title,
-                                datePublished: currentArticle.datePublished,
-                                description: currentArticle.description,
-                                url: currentArticle.url,
-                                urlToImage: currentArticle.urlToImage,
-                              );
-                            },
-                            itemCount: 1,
-                          ))
+                        margin: EdgeInsets.only(bottom: 10),
+                        height: ScreenSizeConfig.safeBlockVertical * 40,
+                        width: ScreenSizeConfig.screenWidth,
+                        child: ArticleOfTheDayCard(
+                          author: snapshot.data[5].author,
+                          source: snapshot.data[5].source,
+                          content: snapshot.data[5].content,
+                          title: snapshot.data[5].title,
+                          datePublished: snapshot.data[5].datePublished,
+                          description: snapshot.data[5].description,
+                          url: snapshot.data[5].url,
+                          urlToImage: snapshot.data[5].urlToImage,
+                        ),
+                      )
                     ],
                   ),
                 ),
-              );
-            }
-          },
-        ),
+              ),
+            );
+          }
+        },
       ),
     );
   }

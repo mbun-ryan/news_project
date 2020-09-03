@@ -1,4 +1,6 @@
 class Helpers {
+  //bool lockLanguageToEnglish = true;
+
   List<Map<String, dynamic>> sorting = [
     {'name': 'Relevancy', 'value': 'relevancy'},
     {'name': 'Popularity', 'value': 'popularity'},
@@ -50,7 +52,7 @@ class Helpers {
     {'name': 'Nigeria', 'symbol': 'ng'},
     {'name': 'Norway', 'symbol': 'no'},
     {'name': 'Philippines', 'symbol': 'ph'},
-    {'name': 'Portugal', 'symbol': 'pl'},
+    {'name': 'Portugal', 'symbol': 'pt'},
     {'name': 'Romania', 'symbol': 'ro'},
     {'name': 'Russia', 'symbol': 'ru'},
     {'name': 'Saudi Arabia', 'symbol': 'sa'},

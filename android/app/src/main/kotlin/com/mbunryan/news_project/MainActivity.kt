@@ -1,4 +1,4 @@
-package com.mbunryan.news_project
+package com.mbunryan.newsplusplus
 
 import io.flutter.embedding.android.FlutterActivity
 

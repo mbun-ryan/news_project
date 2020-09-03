@@ -1,10 +1,12 @@
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:esys_flutter_share/esys_flutter_share.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
+import 'package:news_project/Models/size_config.dart';
 import 'package:news_project/screens/web_mode.dart';
 
 class IndependentArticle extends StatefulWidget {
@@ -27,6 +29,18 @@ class IndependentArticle extends StatefulWidget {
     @required this.content,
     @required this.source,
   });
+  void perform(int index, BuildContext context) {
+    if (index == 0) {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => ArticleWebMode(
+                    url: url,
+                  )));
+    } else {
+      Share.text(title, url, 'text/plain');
+    }
+  }
 
   @override
   _IndependentArticleState createState() => _IndependentArticleState();
@@ -40,7 +54,7 @@ class _IndependentArticleState extends State<IndependentArticle> {
         title: Text('News Details'),
         actions: [
           DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
+            child: DropdownButton<int>(
               icon: Icon(Icons.more_vert),
               iconEnabledColor: Colors.white,
               // value: 'Open In Web mode',
@@ -52,19 +66,27 @@ class _IndependentArticleState extends State<IndependentArticle> {
                       width: 90,
                       child: Center(
                           child: Text(
-                        'Open In Web Mode',
+                        'Web Mode',
                         style: TextStyle(
                             fontSize: 19, fontWeight: FontWeight.w300),
                       ))),
-                  value: widget.url,
+                  value: 0,
+                ),
+                DropdownMenuItem(
+                  child: Container(
+                      margin: EdgeInsets.all(0),
+                      height: 50,
+                      width: 90,
+                      child: Center(
+                          child: Text(
+                        'Share',
+                        style: TextStyle(
+                            fontSize: 19, fontWeight: FontWeight.w300),
+                      ))),
+                  value: 1,
                 ),
               ],
-              onChanged: (value) => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => ArticleWebMode(
-                            url: value,
-                          ))),
+              onChanged: (value) => widget.perform(value, context),
             ),
           ),
         ],
@@ -77,10 +99,9 @@ class _IndependentArticleState extends State<IndependentArticle> {
             Card(
               margin: EdgeInsets.all(1),
               child: Container(
-                height:
-                    MediaQuery.of(context).orientation == Orientation.portrait
-                        ? MediaQuery.of(context).size.height * .38
-                        : MediaQuery.of(context).size.height * .5,
+                height: ScreenSizeConfig.screenWidth > 600
+                    ? MediaQuery.of(context).size.height * .38
+                    : MediaQuery.of(context).size.height * .5,
                 child: Stack(
                   children: [
                     Container(
@@ -151,6 +172,7 @@ class _IndependentArticleState extends State<IndependentArticle> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Card(
+                    color: Theme.of(context).canvasColor,
                     child: ListTile(
                       contentPadding: EdgeInsets.only(
                           top: 0, bottom: 2, left: 10, right: 0),
