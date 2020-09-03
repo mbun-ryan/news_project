@@ -29,7 +29,7 @@ The app pulls data from [News API](https://newsapi.org/) to receive latest news 
 
 ## Dependencies
 
-- External Dependencies Include:
+- External Packages or Dependencies Include:
   - [dart-lang/http](https://github.com/dart-lang/http)
   - [Baseflow/flutter_cached_network_image](https://github.com/Baseflow/flutter_cached_network_image)
   - [dart-lang/intl](https://github.com/dart-lang/intl)
