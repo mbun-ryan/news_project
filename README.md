@@ -20,7 +20,15 @@ The app pulls data from [News API](https://newsapi.org/) to receive latest news 
 
 - In the **All Articles** screen, all articles from the selected country is shown. Articles are further grouped into categories like **Technology** and **Health**.
 
+## Running The App
+
+- **Clone** the repository into your computer.
+- Launch it in your flutter IDE of choice and run **$ flutter pub get** (**get dependencies**) to install all the external dependencies required to run the app.
+- Run '**main.dart**' on an **emulator** or a **physical device**.
+  - **Enjoy**
+
 ## Dependencies
+
 - External Dependencies Include:
   - [dart-lang/http](https://github.com/dart-lang/http)
   - [Baseflow/flutter_cached_network_image](https://github.com/Baseflow/flutter_cached_network_image)
