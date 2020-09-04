@@ -167,7 +167,7 @@ class _DashboardState extends State<Dashboard> {
                       Padding(
                         padding: const EdgeInsets.all(0),
                         child: Text(
-                          'This app is still in "BETA", so expect some minor issues.',
+                          'This app was made for the Chingu Explorer Cohort August-2020.',
                           textAlign: TextAlign.center,
                           // ignore: deprecated_member_use
                           style: Theme.of(context).textTheme.title.copyWith(
